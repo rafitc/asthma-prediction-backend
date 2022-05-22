@@ -47,9 +47,10 @@ def predict():
             "hum" : humidity,
             "pin":pincode,
             "act":value,
+            "pm2":pm2,
         }
     return jsonify(data)
-    
+
 if __name__ == '__main__':
     app.run(debug=True)
 
