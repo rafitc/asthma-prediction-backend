@@ -117,8 +117,11 @@ def predict():
     print("Pin ", pincode)
     ref = db.reference("/")
     j_value = ref.get()
+    value = None
     for i in j_value:
         value = j_value[i]['data'].get(pincode)
+        if not value == None:
+            break;
     if value == None:
         print("No value in")
         data = {
