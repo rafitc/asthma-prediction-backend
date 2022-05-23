@@ -5,22 +5,22 @@ from flask import Flask, redirect, url_for, request, jsonify
 import pickle 
 import pandas as pd 
 import warnings
-
+from dotenv import load_dotenv
+load_dotenv()
+import os 
 from requests import NullHandler
 warnings.filterwarnings("ignore", category=UserWarning)
 import firebase_admin
 from firebase_admin import db
 
 app = Flask(__name__)
-
 # cred = credentials.Certificate("asthma-pred-firebase-adminsdk-kokv3-19683e0cac.json")
 # firebase_admin.initialize_app(cred)
 cred_obj = firebase_admin.credentials.Certificate('asthma-pred-firebase-adminsdk-kokv3-19683e0cac.json')
 default_app = firebase_admin.initialize_app(cred_obj, {
-	'databaseURL':'https://asthma-pred-default-rtdb.firebaseio.com',
+	'databaseURL': os.getenv("dbURL"),
 	})
-
-
+    
 filename = "DT.sav"
 
 @app.route('/')
