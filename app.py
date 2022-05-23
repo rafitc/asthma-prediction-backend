@@ -32,11 +32,42 @@ def postplain():
     content_type = request.headers.get('Content-Type')
     if (content_type == 'application/json'):
         json = request.json
-        print(json)
-        return "Done"
-    else:
-        return 'Content-Type not supported!'
+        #print(json)
+        pin = json["pin"]
+        print(pin)
+        temp = json["temp"]
+        hum = json["hum"]
+        pm2 = json["pm2"]
 
+        #check for pin
+        ref = db.reference("/")
+        j_value = ref.get()
+        for i in j_value:
+            a = j_value[i]['data'].get(pin)
+            if not a == None:
+                print("already found a pin code, entry updated in ", pin)
+                path = i + "/data/"+pin
+                #update val
+                ref.child(path).update({
+                    "timestamp": '2',
+                    "temp":temp ,
+                    "hum": hum,
+                    "pm2": pm2,})
+                return ("already found a pin code, entry updated in "+ pin)
+        if a == None:
+            print("no data so adding data")
+            ref = db.reference("/")
+            ref.push({
+            "data": {
+                pin: {
+                    "timestamp": "1",
+                    "temp": temp,
+                    "hum": hum,
+                    "pm2": pm2,
+            }
+            }
+            })
+            return('Updated with new pin code :' + pin)
 
 
 @app.route('/value', methods=["GET"])
@@ -44,11 +75,11 @@ def storeValue():
     ref = db.reference("/")
     ref.push({
     "data": {
-        "673640": {
+        "688504": {
             "timestamp": "1",
-            "temp": "34",
-            "hum": "72",
-            "pm2": "49",
+            "temp": "30",
+            "hum": "71",
+            "pm2": "20",
     }
   }
 })
@@ -78,18 +109,26 @@ def updatevalue():
     if a == None:
         print(a)
         return('no pincode')
-    
     return(a)
 
 @app.route('/predict', methods=["POST"])
 def predict():
     pincode = request.form['pin']
     print("Pin ", pincode)
-    ref = db.reference("/-N2fNxS3nj_2fiKPVv2A/data/"+pincode)
-    value = ref.get()
+    ref = db.reference("/")
+    j_value = ref.get()
+    for i in j_value:
+        value = j_value[i]['data'].get(pincode)
     if value == None:
         print("No value in")
-        return "no data"
+        data = {
+            "temp" : "error",
+            "hum" : "error",
+            "pin":"error",
+            "act":"error",
+            "pm2":"error",
+        }
+        return jsonify(data)
     temperature = value["temp"]
     humidity = value["hum"]
     pm2 = value["pm2"]
